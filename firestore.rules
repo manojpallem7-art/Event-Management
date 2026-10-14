@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    // An admin is any signed-in user that has a document in /admins/{their uid}. Create it by hand.
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isActive() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'active'; }
+
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    // One document per roll number: its existence is what blocks duplicates.
+    match /rollNumbers/{roll} {
+      allow get: if true;
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['uid', 'email'])
+                    && request.resource.data.uid == request.auth.uid;
+      allow delete: if isAdmin();
+      allow list, update: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.status == 'active'
+                    && request.resource.data.email == request.auth.token.email.lower()
+                    && request.resource.data.rollNo.matches('^[A-Z0-9-]{4,20}$')
+                    && getAfter(/databases/$(database)/documents/rollNumbers/$(request.resource.data.rollNo)).data.uid == request.auth.uid;
+      allow update: if isAdmin()
+                    || (signedIn() && request.auth.uid == uid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'phone', 'department', 'year']));
+      allow delete: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && isActive()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registeredCount'])
+            && request.resource.data.registeredCount >= 0
+            && request.resource.data.registeredCount <= resource.data.capacity
+            && (
+              (request.resource.data.registeredCount == resource.data.registeredCount + 1
+                && resource.data.status == 'open'
+                && existsAfter(/databases/$(database)/documents/registrations/$(eventId + '_' + request.auth.uid)))
+              ||
+              (request.resource.data.registeredCount == resource.data.registeredCount - 1
+                && !existsAfter(/databases/$(database)/documents/registrations/$(eventId + '_' + request.auth.uid)))
+            ));
+    }
+
+    // Document id = eventId_uid, so a student can register for an event only once.
+    match /registrations/{regId} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if signedIn() && isActive()
+                    && request.resource.data.uid == request.auth.uid
+                    && regId == request.resource.data.eventId + '_' + request.auth.uid;
+      allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update: if false;
+    }
+  }
+}

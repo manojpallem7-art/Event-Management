@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My dashboard | Pulse Events</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<header class="site-nav">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <a href="index.html" class="brand"><span class="brand-mark"></span>pulse<span class="brand-dot">.</span></a>
+    <nav class="nav nav-pills nav-pills-pulse order-3 order-md-2 w-100 w-md-auto overflow-auto flex-nowrap" id="nav" aria-label="Sections">
+      <button class="nav-link active text-nowrap" data-sec="dashboard">Dashboard</button>
+      <button class="nav-link text-nowrap" data-sec="discover">Discover events</button>
+      <button class="nav-link text-nowrap" data-sec="tickets">My tickets</button>
+      <button class="nav-link text-nowrap" data-sec="profile">Profile</button>
+    </nav>
+    <button class="btn btn-outline-ink order-2 order-md-3" id="logout"><i class="bi bi-box-arrow-right me-1"></i>Log out</button>
+  </div>
+</header>
+
+<main class="container pb-5">
+  <div id="loading" class="py-5 text-center text-muted">Loading your dashboard...</div>
+
+  <!-- DASHBOARD -->
+  <section id="sec-dashboard" class="sec d-none">
+    <h1 class="display mb-4" id="hello"></h1>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4"><div class="stat stat-blue"><b id="st-up">0</b><span>Upcoming tickets</span></div></div>
+      <div class="col-6 col-md-4"><div class="stat"><b id="st-past">0</b><span>Events attended</span></div></div>
+      <div class="col-12 col-md-4"><div class="stat stat-sun"><b id="st-open">0</b><span>Events open to join</span></div></div>
+    </div>
+    <h2 class="h3 mb-3">Your next event</h2>
+    <div id="next" class="mb-5" style="max-width:560px"></div>
+    <div class="d-flex justify-content-between align-items-end mb-3"><h2 class="h3 m-0">Open for registration</h2><button class="btn btn-link fw-semibold p-0" data-go="discover">See all events</button></div>
+    <div id="suggest" class="tickets-grid"></div>
+  </section>
+
+  <!-- DISCOVER -->
+  <section id="sec-discover" class="sec d-none">
+    <h1 class="display mb-3">Discover events</h1>
+    <div class="row g-3 align-items-center mb-4">
+      <div class="col-md-5"><label class="visually-hidden" for="search">Search events</label><input id="search" class="form-control" type="search" placeholder="Search by title or venue"></div>
+      <div class="col-md-7 d-flex flex-wrap gap-2" id="cats"></div>
+    </div>
+    <div id="discover-list" class="tickets-grid"></div>
+  </section>
+
+  <!-- TICKETS -->
+  <section id="sec-tickets" class="sec d-none">
+    <h1 class="display mb-4">My tickets</h1>
+    <h2 class="h4 mb-3">Upcoming</h2>
+    <div id="tickets-up" class="tickets-grid mb-5"></div>
+    <h2 class="h4 mb-3">Past events</h2>
+    <div id="tickets-past" class="tickets-grid"></div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="sec-profile" class="sec d-none">
+    <h1 class="display mb-4">Profile</h1>
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <form id="profile-form" class="panel" novalidate>
+          <div class="row g-3">
+            <div class="col-12 field"><label class="form-label" for="p-name">Full name</label><input class="form-control" id="p-name" name="name"><div class="invalid-feedback"></div></div>
+            <div class="col-sm-6 field"><label class="form-label" for="p-phone">Mobile number</label><input class="form-control" id="p-phone" name="phone" inputmode="numeric" maxlength="10"><div class="invalid-feedback"></div></div>
+            <div class="col-sm-4 field"><label class="form-label" for="p-dept">Department</label><select class="form-select" id="p-dept" name="department"></select><div class="invalid-feedback"></div></div>
+            <div class="col-sm-2 field"><label class="form-label" for="p-year">Year</label><select class="form-select" id="p-year" name="year"><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option></select><div class="invalid-feedback"></div></div>
+          </div>
+          <button class="btn btn-primary mt-4" type="submit">Save changes</button>
+        </form>
+      </div>
+      <div class="col-lg-5">
+        <div class="panel"><h2 class="h5">Account details</h2>
+          <dl class="mb-0"><dt class="text-muted fw-semibold">Email</dt><dd id="p-email"></dd><dt class="text-muted fw-semibold">Roll number</dt><dd id="p-roll" class="mb-0"></dd></dl>
+          <p class="text-muted small mt-3 mb-0">Email and roll number can only be changed by an admin.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/student.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin | Pulse Events</title>
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="side">
+    <a href="index.html" class="brand"><span class="brand-mark"></span>pulse<span class="brand-dot">.</span></a>
+    <nav id="nav" aria-label="Admin sections">
+      <button class="active" data-sec="overview"><i class="bi bi-speedometer2"></i>Overview</button>
+      <button data-sec="events"><i class="bi bi-ticket-perforated"></i>Events</button>
+      <button data-sec="students"><i class="bi bi-people"></i>Students</button>
+      <button id="logout"><i class="bi bi-box-arrow-right"></i>Log out</button>
+    </nav>
+    <div class="me" id="me"></div>
+  </aside>
+
+  <main class="main">
+    <div id="loading" class="py-5 text-center text-muted">Loading admin console...</div>
+
+    <!-- OVERVIEW -->
+    <section id="sec-overview" class="sec d-none">
+      <h1 class="display mb-4">Overview</h1>
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3"><div class="stat stat-blue"><b id="o-events">0</b><span>Events</span></div></div>
+        <div class="col-6 col-lg-3"><div class="stat"><b id="o-students">0</b><span>Students</span></div></div>
+        <div class="col-6 col-lg-3"><div class="stat"><b id="o-regs">0</b><span>Registrations</span></div></div>
+        <div class="col-6 col-lg-3"><div class="stat stat-sun"><b id="o-fill">0%</b><span>Seats filled</span></div></div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-6"><div class="panel h-100"><h2 class="h5 mb-3">Fullest upcoming events</h2><div id="o-fullest"></div></div></div>
+        <div class="col-lg-6"><div class="panel h-100"><h2 class="h5 mb-3">Latest registrations</h2><div id="o-recent"></div></div></div>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section id="sec-events" class="sec d-none">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <h1 class="display m-0">Events</h1>
+        <button class="btn btn-primary" id="new-event"><i class="bi bi-plus-lg me-1"></i>New event</button>
+      </div>
+      <div class="mb-3" style="max-width:360px"><label class="visually-hidden" for="ev-search">Search events</label><input id="ev-search" class="form-control" type="search" placeholder="Search events"></div>
+      <div class="table-wrap"><div class="table-responsive"><table class="table table-hover">
+        <thead><tr><th>Event</th><th>When</th><th>Venue</th><th>Registered</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+        <tbody id="ev-body"></tbody></table></div></div>
+    </section>
+
+    <!-- STUDENTS -->
+    <section id="sec-students" class="sec d-none">
+      <h1 class="display mb-4">Students</h1>
+      <div class="mb-3" style="max-width:360px"><label class="visually-hidden" for="st-search">Search students</label><input id="st-search" class="form-control" type="search" placeholder="Search by name, roll number or email"></div>
+      <div class="table-wrap"><div class="table-responsive"><table class="table table-hover">
+        <thead><tr><th>Student</th><th>Roll number</th><th>Department</th><th>Mobile</th><th>Tickets</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+        <tbody id="st-body"></tbody></table></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- Event modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
+    <form id="event-form" novalidate>
+      <div class="modal-header border-0 pb-0"><h2 class="h4 modal-title" id="eventModalTitle">New event</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><div class="row g-3">
+        <div class="col-12 field"><label class="form-label" for="e-title">Event title</label><input class="form-control" id="e-title" name="title" maxlength="80"><div class="invalid-feedback"></div></div>
+        <div class="col-md-6 field"><label class="form-label" for="e-cat">Category</label><select class="form-select" id="e-cat" name="category"></select><div class="invalid-feedback"></div></div>
+        <div class="col-md-6 field"><label class="form-label" for="e-date">Date and time</label><input class="form-control" id="e-date" name="date" type="datetime-local"><div class="invalid-feedback"></div></div>
+        <div class="col-md-6 field"><label class="form-label" for="e-venue">Venue</label><input class="form-control" id="e-venue" name="venue" maxlength="80"><div class="invalid-feedback"></div></div>
+        <div class="col-md-3 field"><label class="form-label" for="e-cap">Seats</label><input class="form-control" id="e-cap" name="capacity" type="number" min="1" max="10000" inputmode="numeric"><div class="invalid-feedback"></div></div>
+        <div class="col-md-3 field"><label class="form-label" for="e-status">Registration</label><select class="form-select" id="e-status" name="status"><option value="open">Open</option><option value="closed">Closed</option></select><div class="invalid-feedback"></div></div>
+        <div class="col-12 field"><label class="form-label" for="e-desc">Description</label><textarea class="form-control" id="e-desc" name="description" rows="3" maxlength="500"></textarea><div class="invalid-feedback"></div></div>
+      </div></div>
+      <div class="modal-footer border-0"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save event</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Student modal -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <form id="student-form" novalidate>
+      <div class="modal-header border-0 pb-0"><h2 class="h4 modal-title" id="studentModalTitle">Edit student</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><p class="text-muted" id="s-ident"></p><div class="row g-3">
+        <div class="col-12 field"><label class="form-label" for="m-name">Full name</label><input class="form-control" id="m-name" name="name"><div class="invalid-feedback"></div></div>
+        <div class="col-12 field"><label class="form-label" for="m-phone">Mobile number</label><input class="form-control" id="m-phone" name="phone" inputmode="numeric" maxlength="10"><div class="invalid-feedback"></div></div>
+        <div class="col-8 field"><label class="form-label" for="m-dept">Department</label><select class="form-select" id="m-dept" name="department"></select><div class="invalid-feedback"></div></div>
+        <div class="col-4 field"><label class="form-label" for="m-year">Year</label><select class="form-select" id="m-year" name="year"><option value="">-</option><option>1</option><option>2</option><option>3</option><option>4</option></select><div class="invalid-feedback"></div></div>
+      </div></div>
+      <div class="modal-footer border-0"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save changes</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Side panel -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="panel" aria-labelledby="panelTitle" style="width:min(100%,480px)">
+  <div class="offcanvas-header"><div><h2 class="h4 mb-0" id="panelTitle"></h2><small class="text-muted" id="panelSub"></small></div><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+  <div class="offcanvas-body" id="panelBody"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
